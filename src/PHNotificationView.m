@@ -12,6 +12,9 @@
 #import "PHNotificationBadgeRenderer.h"
 
 static NSMutableDictionary *RendererMap;
+@interface PHNotificationView(Private)
+-(void)_setTestNotificationData;
+@end
 
 @implementation PHNotificationView
 
@@ -94,8 +97,12 @@ static NSMutableDictionary *RendererMap;
 }
 
 -(void)refresh{
+#ifndef PH_TEST_MODE
   PHPublisherMetadataRequest *request = [PHPublisherMetadataRequest requestForApp:_app secret:_secret placement:_placement delegate:self];
   [request send];
+#else
+  [self _setTestNotificationData];
+#endif
 }
 
 -(void)request:(PHAPIRequest *)request didSucceedWithResponse:(NSDictionary *)responseData{
@@ -107,6 +114,10 @@ static NSMutableDictionary *RendererMap;
 }
 
 -(void)test{
+  [self _setTestNotificationData];
+}
+
+-(void)_setTestNotificationData{
   static NSDictionary *TestingNotificationData;
   if (TestingNotificationData == nil) {
     TestingNotificationData = [[NSDictionary alloc] initWithObjectsAndKeys:
@@ -117,6 +128,7 @@ static NSMutableDictionary *RendererMap;
   
   self.notificationData = TestingNotificationData;
 }
+
 
 -(void)clear{
   self.notificationData = nil;

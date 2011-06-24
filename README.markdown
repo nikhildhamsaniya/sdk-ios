@@ -69,7 +69,7 @@ If for any reason a content unit fails to load after the overlay view has appear
 
 ### Customizing content display
 #### Replace close button graphics
-Use the following request method to replace the close button image with something that more closely matches your app. Images will be scaled to a maximum size of 40x40.
+Use the following request method to replace the close button image with something that more closely matches your app. Images will be resized to 40x40.
 
 > \-(UIImage *)request:(PHPublisherContentRequest *)request closeButtonImageForControlState:(UIControlState)state content:(PHContent *)content;
 
@@ -80,12 +80,14 @@ PHNotificationView provides a fully encapsulated notification view that automati
 
 *NOTE:* Currently the only valid placement is *"more_games"*.
 
-Notification view will remain anchored to the center of the position they are placed in the view, even as the size of the badge changes. You may refresh your notification view from the network using the -(void)refresh method on an instance. We recommend refreshing the notification view each time it will appear in your UI. See examples/PublisherContentViewController.m for an example.
+Notification view will remain anchored to the center of the position they are placed in the view, even as the size of the badge changes. You may refresh your notification view from the network using the -(void)refresh method on an instance. We recommend refreshing the notification view each time it will appear in your UI. See *examples/PublisherContentViewController.m* for an example.
 
-You will also need to clear any notification view instances when you successfully launch a content unit. You may do this using the -(void)clear method on any notification views you wish to clear.
+You will also need to clear any notification view instances when you successfully launch a content unit. You may do this using the -(void)clear method on any notification views you wish to clear. (See *Preparing to show a content view*, above.)
 
 ### Testing PHNotificationView
-Most of the time, the API will return an empty response, which means a notification view will not be shown. TYou can see a sample notification by using -(void)test; wherever you would use -(void)refresh. It has been marked as deprecated to remind you to switch all instances of -(void)test in your code to -(void)refresh;
+Defining the PH_TEST_MODE preprocessor macro will enable test mode on all PHNotificationView instances. In this mode, each PHNotificationView will show a red dot badge notification on -(void)refresh. You may set this macro in your app's Build Settings.
+
+![Example.app's XCode Build Settings](http://media.playhaven.com/github/phtestmode-setting.jpg "Build Settings enabling test mode in Example.app's Debug configuration")
 
 ### Customizing notification rendering with PHNotificationRenderer
 PHNotificationRenderer is a base class that draws a notification view for a given notification data. The base class implements a blank notification view used for unknown notification types. PHNotificationBadgeRenderer renders a iOS default-style notification badge with a given "value" string. You may customize existing notification renderers and register new ones at runtime using the following method on PHNotificationView
