@@ -1,3 +1,4 @@
+  **NOTE: THIS IS A DEVELOPMENT BRANCH!** which may have code that is not fully supported by our APIs or documentation. Please use one of our tagged releases instead. 
 PlayHaven SDK
 ==============
 The PlayHaven Content SDK allows you to add dynamic content to your app. It is a flexible framework capable of delivering integrated experiences; including ads, special offers, announcements and other kinds of content which can be dynamically assigned to placements within your application.
