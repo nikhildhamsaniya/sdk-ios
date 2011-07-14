@@ -11,7 +11,7 @@
 #define ALPHA_IN 1.0f
 #define ALPHA_OUT 0.0f
 #define TRANSFORM_IN CGAffineTransformIdentity
-#define TRANSFORM_OUT CGAffineTransformMakeScale(1.2, 1.2)
+#define TRANSFORM_OUT CGAffineTransformMakeScale(1.2f, 1.2f)
 
 @interface PHURLLoaderView(Private)
 
@@ -26,7 +26,7 @@
 -(id)initWithTargetURLPath:(NSString *)urlPath{
   if ((self = [super initWithFrame:CGRectZero])) {
     self.loader.targetURL = [NSURL URLWithString:urlPath];
-    self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.5];
+    self.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.5f];
     self.opaque = NO;
   }
   

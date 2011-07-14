@@ -11,12 +11,12 @@
 #define ALPHA_OUT 0.0f
 #define ALPHA_IN 1.0f
 
-#define BOUNCE_OUT CGAffineTransformMakeScale(0.8,0.8)
-#define BOUNCE_MID CGAffineTransformMakeScale(1.1,1.1)
+#define BOUNCE_OUT CGAffineTransformMakeScale(0.8f,0.8f)
+#define BOUNCE_MID CGAffineTransformMakeScale(1.1f,1.1f)
 #define BOUNCE_IN  CGAffineTransformIdentity
 
-#define DURATION_1 0.125
-#define DURATION_2 0.125
+#define DURATION_1 0.125f
+#define DURATION_2 0.125f
 
 @interface PHContentWebView(Private)
 

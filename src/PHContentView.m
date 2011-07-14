@@ -101,7 +101,7 @@
       return;
     }
 
-    CGFloat duration = [UIApplication sharedApplication].statusBarOrientationAnimationDuration;
+    NSTimeInterval duration = [UIApplication sharedApplication].statusBarOrientationAnimationDuration;
 //    if ((orientation == UIInterfaceOrientationLandscapeLeft && _orientation == UIInterfaceOrientationLandscapeRight)
 //        ||(orientation == UIInterfaceOrientationLandscapeRight && _orientation == UIInterfaceOrientationLandscapeLeft)) {
 //      duration = duration * 2;
@@ -145,13 +145,13 @@
   
   CGRect frame = [UIScreen mainScreen].bounds;
   CGPoint center = CGPointMake(
-                               frame.origin.x + ceil(frame.size.width/2),
-                               frame.origin.y + ceil(frame.size.height/2));
+                               frame.origin.x + ceilf(frame.size.width/2),
+                               frame.origin.y + ceilf(frame.size.height/2));
   
   CGFloat scale_factor = 1.0f;
   
-  CGFloat width = floor(scale_factor * frame.size.width);
-  CGFloat height = floor(scale_factor * frame.size.height);
+  CGFloat width = floorf(scale_factor * frame.size.width);
+  CGFloat height = floorf(scale_factor * frame.size.height);
   
   _orientation = [UIApplication sharedApplication].statusBarOrientation;
   if (UIInterfaceOrientationIsLandscape(_orientation)) {
@@ -168,11 +168,11 @@
 
 -(CGAffineTransform) transformForOrientation:(UIInterfaceOrientation)orientation{
   if (orientation == UIInterfaceOrientationLandscapeLeft) {
-    return CGAffineTransformMakeRotation(-M_PI/2);
+    return CGAffineTransformMakeRotation((float)-M_PI/2);
   } else if (orientation == UIInterfaceOrientationLandscapeRight) {
-    return CGAffineTransformMakeRotation(M_PI/2);
+    return CGAffineTransformMakeRotation((float)M_PI/2);
   } else if (orientation == UIInterfaceOrientationPortraitUpsideDown) {
-    return CGAffineTransformMakeRotation(-M_PI);
+    return CGAffineTransformMakeRotation((float)-M_PI);
   } else {
     return CGAffineTransformIdentity;
   }
@@ -247,7 +247,7 @@
       [self viewDidShow];
     }
   } else if (self.content.transition == PHContentTransitionDialog) {
-    self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.5];
+    self.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.5f];
     self.opaque = NO;
     
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
