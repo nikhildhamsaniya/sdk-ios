@@ -28,23 +28,27 @@
   NSObject<PHContentViewDelegate> *_delegate;
   
   PHContentWebView *_webView;
-  UINavigationBar *_navBar;
   BOOL _willAnimate;
   
   NSMutableDictionary *_redirects;
   UIActivityIndicatorView *_activityView;
   
   UIButton *_closeButton;
+  UIView *_targetView;
 }
 
 -(id)initWithContent:(PHContent *)content;
 
 @property(nonatomic, readonly) PHContent *content;
 @property(nonatomic, assign) NSObject<PHContentViewDelegate> *delegate;
+@property(nonatomic, assign) UIView *targetView;
 
 -(void) show:(BOOL)animated;
 -(void) dismiss:(BOOL)animated;
 
 -(void)redirectRequest:(NSString *)urlPath toTarget:(id)target action:(SEL)action;
 -(void)sendCallback:(NSString *)callback withResponse:(id)response error:(id)error;
+
+
+-(void)dismissFromButton;
 @end

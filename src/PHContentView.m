@@ -12,6 +12,7 @@
 #import "PHURLLoaderView.h"
 #import "NSObject+QueryComponents.h"
 #import "JSON.h"
+#import "PHConstants.h"
 
 #define MAX_MARGIN 20
 
@@ -22,7 +23,6 @@
 -(void)viewDidShow;
 -(void)viewDidDismiss;
 -(void)dismissView;
--(void)dismissFromButton;
 -(void)handleLaunch:(NSDictionary *)queryComponents;
 -(void)handleDismiss:(NSDictionary *)queryComponents;
 -(void)handleLoadContext:(NSDictionary *)queryComponents callback:(NSString*)callback;
@@ -60,6 +60,10 @@
     
     _content = [content retain];
     
+    
+    UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+    _targetView = window;
+    
     self.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     
   }
@@ -69,6 +73,7 @@
 
 @synthesize content = _content;
 @synthesize delegate = _delegate;
+@synthesize targetView = _targetView;
 
 -(UIActivityIndicatorView *)activityView{
   if (_activityView == nil){
@@ -84,7 +89,6 @@
   [[NSNotificationCenter defaultCenter] removeObserver:self];
   [_content release], _content = nil;
   [_webView release], _webView = nil;
-  [_navBar release], _navBar = nil;
   [_redirects release], _redirects = nil;
   [_activityView release] , _activityView = nil;
   [_closeButton release], _closeButton = nil;
@@ -101,17 +105,7 @@
       return;
     }
 
-    NSTimeInterval duration = [UIApplication sharedApplication].statusBarOrientationAnimationDuration;
-//    if ((orientation == UIInterfaceOrientationLandscapeLeft && _orientation == UIInterfaceOrientationLandscapeRight)
-//        ||(orientation == UIInterfaceOrientationLandscapeRight && _orientation == UIInterfaceOrientationLandscapeLeft)) {
-//      duration = duration * 2;
-//      
-//      if (self.content.transition == PHContentTransitionDialog) {
-//        CGFloat offset = (orientation == UIInterfaceOrientationLandscapeLeft)? -0.01: 0.01;
-//        _webView.transform = CGAffineTransformMakeRotation(M_PI + offset);
-//      }
-//    }
-    
+    CGFloat duration = [UIApplication sharedApplication].statusBarOrientationAnimationDuration;
     
     if (self.content.transition == PHContentTransitionDialog) {
       CGFloat barHeight = ([[UIApplication sharedApplication] isStatusBarHidden])? 0 : 20;
@@ -125,16 +119,14 @@
     
     [UIView beginAnimations:nil context:nil];
     [UIView setAnimationDuration:duration];
-    [UIView setAnimationDelegate:self];
-    [UIView setAnimationDidStopSelector:@selector(showCloseButton)];
+    //[UIView setAnimationDelegate:self];
+    //[UIView setAnimationDidStopSelector:@selector(showCloseButton)];
     if (self.content.transition == PHContentTransitionDialog) {
       _webView.transform = CGAffineTransformIdentity;
     } else{
       [self sizeToFitOrientation:YES];
     }
     [UIView commitAnimations];
-
-    [_webView updateOrientation:_orientation];
   }
 }
 
@@ -181,9 +173,9 @@
 -(void) show:(BOOL)animated{
   
   _willAnimate = animated;
-  UIWindow *window = [[UIApplication sharedApplication] keyWindow];
+  [self.targetView addSubview: self];
   [self sizeToFitOrientation:YES];
-  [window addSubview: self];
+
   
   if (CGRectIsNull([self.content frameForOrientation:_orientation])) {
     //this is an invalid frame and we should dismiss immediately!
@@ -195,8 +187,8 @@
   CGFloat barHeight = ([[UIApplication sharedApplication] isStatusBarHidden])? 0 : 20;
   
   if (self.content.transition == PHContentTransitionModal) {
-    self.backgroundColor = [UIColor groupTableViewBackgroundColor];
-    self.opaque = YES;
+    self.backgroundColor = [UIColor clearColor];
+    self.opaque = NO;
     
     CGFloat width, height;
     if (UIInterfaceOrientationIsPortrait(_orientation)) {
@@ -207,28 +199,11 @@
       height = self.frame.size.width;
     }
     
-    
-    _navBar = [[UINavigationBar alloc] initWithFrame:CGRectMake(0, barHeight, width, 44)];
-    _navBar.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleBottomMargin;
-    
-    UINavigationItem *navItem = [[UINavigationItem alloc] initWithTitle:nil];
-    UIBarButtonItem *closeButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone
-                                                                                 target:self 
-                                                                                 action:@selector(dismissFromButton)];
-    navItem.leftBarButtonItem = closeButton;
-    [closeButton release];
-    
-    [_navBar pushNavigationItem:navItem animated:NO];
-    [navItem release];
-    
-    
-    CGFloat navBarHeight = CGRectGetMaxY(_navBar.frame); 
-    _webView = [[PHContentWebView alloc] initWithFrame:CGRectMake(0, navBarHeight, width, height - navBarHeight)];
+    _webView = [[PHContentWebView alloc] initWithFrame:CGRectMake(0, barHeight, width, height-barHeight)];
     _webView.delegate = self;
     _webView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
     _webView.layer.borderWidth = 0.0f;
     
-    [self addSubview: _navBar];
     [self addSubview:_webView];
     
     [self activityView].center = _webView.center;
@@ -247,7 +222,7 @@
       [self viewDidShow];
     }
   } else if (self.content.transition == PHContentTransitionDialog) {
-    self.backgroundColor = [UIColor colorWithWhite:0.0f alpha:0.5f];
+    self.backgroundColor = [UIColor colorWithWhite:0.0 alpha:0.1];
     self.opaque = NO;
     
     UIInterfaceOrientation orientation = [UIApplication sharedApplication].statusBarOrientation;
@@ -322,7 +297,6 @@
 -(void)dismissView{
   [self removeFromSuperview];
   [_webView release], _webView = nil;
-  [_navBar release], _navBar = nil;
   
   [self viewDidDismiss];
 }
@@ -330,7 +304,6 @@
 -(void)dismissWithError:(NSError *)error{
   [self removeFromSuperview];
   [_webView release], _webView = nil;
-  [_navBar release], _navBar = nil;
   
   if ([self.delegate respondsToSelector:(@selector(contentView:didFailWithError:))]) {
     [self.delegate contentView:self didFailWithError:error];
@@ -360,9 +333,8 @@
     NSDictionary *queryComponents = [url queryComponents];
     NSString *callback = [queryComponents valueForKey:@"callback"];
     
-    NSPredicate *noCallbackPredicate = [NSPredicate predicateWithFormat:@"SELF != %@", @"callback"];
-    NSArray *filteredKeys = [[queryComponents allKeys] filteredArrayUsingPredicate:noCallbackPredicate];
-    NSDictionary *context = [queryComponents dictionaryWithValuesForKeys:filteredKeys];
+    NSString *contextString = [queryComponents valueForKey:@"context"];
+    NSDictionary *context = (!!contextString)?[contextString JSONValue]:nil;
     
     NSLog(@"[PHContentView] Redirecting request with callback: %@ to dispatch %@", callback, urlPath);
     switch ([[redirect methodSignature] numberOfArguments]) {
@@ -380,7 +352,7 @@
     return NO;
   }
   
-  return YES;
+  return ![[url scheme] isEqualToString:@"ph"];
 }
 
 -(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error{
@@ -389,15 +361,18 @@
 
 -(void)webViewDidFinishLoad:(UIWebView *)webView{
   [[self activityView] stopAnimating]; 
-  [self showCloseButton];
-  [(PHContentWebView *)webView updateOrientation:_orientation];
+  
+  //update Webview with current PH_DISPATCH_PROTOCOL_VERSION
+  NSString *loadCommand = [NSString stringWithFormat:@"window.PlayHavenDispatchProtocolVersion = %d", PH_DISPATCH_PROTOCOL_VERSION];
+  [webView stringByEvaluatingJavaScriptFromString:loadCommand];
+  
   if ([self.delegate respondsToSelector:(@selector(contentViewDidLoad:))]) {
     [self.delegate contentViewDidLoad:self];
   }
 }
 
 -(void)didBounceInWebView{
-  [self performSelector:@selector(showCloseButton) withObject:nil afterDelay:self.content.closeButtonDelay];
+  //[self performSelector:@selector(showCloseButton) withObject:nil afterDelay:self.content.closeButtonDelay];
 }
 
 -(void)showCloseButton{
